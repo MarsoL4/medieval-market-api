@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import br.com.fiap.medieval_market_api.model.Avatar;
 import br.com.fiap.medieval_market_api.model.Item;
 import br.com.fiap.medieval_market_api.model.ItemRarity;
 import br.com.fiap.medieval_market_api.model.ItemType;
@@ -17,4 +18,6 @@ public interface ItemRepository extends JpaRepository<Item, Long>, JpaSpecificat
     List<Item> findByRarity(ItemRarity rarity);
 
     List<Item> findByPriceBetween(int min, int max);
+
+    List<Item> findByOwner(Avatar owner);
 }

@@ -1,8 +1,10 @@
 package br.com.fiap.medieval_market_api.controller;
 
 import br.com.fiap.medieval_market_api.model.Avatar;
+import br.com.fiap.medieval_market_api.model.Item;
 import br.com.fiap.medieval_market_api.model.RoleType;
 import br.com.fiap.medieval_market_api.repository.AvatarRepository;
+import br.com.fiap.medieval_market_api.repository.ItemRepository;
 import br.com.fiap.medieval_market_api.specification.AvatarSpecification;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,6 +30,10 @@ public class AvatarController {
 
     @Autowired
     private AvatarRepository repository;
+
+    @Autowired
+    private ItemRepository itemRepository;
+
 
     @GetMapping
     @Operation(
@@ -105,6 +111,12 @@ public class AvatarController {
     )
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         Avatar avatar = get(id);
+    
+        // Remove o vínculo dos itens com o avatar
+        List<Item> items = itemRepository.findByOwner(avatar);
+        items.forEach(item -> item.setOwner(null));
+        itemRepository.saveAll(items);
+    
         repository.delete(avatar);
         return ResponseEntity.noContent().build();
     }

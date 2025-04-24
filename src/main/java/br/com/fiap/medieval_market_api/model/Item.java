@@ -36,6 +36,7 @@ public class Item {
     private int price;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id")
+    @JoinColumn(name = "owner_id", nullable = true)
     private Avatar owner;
+
 }
