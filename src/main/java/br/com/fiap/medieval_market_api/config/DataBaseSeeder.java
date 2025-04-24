@@ -20,7 +20,6 @@ public class DataBaseSeeder {
 
     @PostConstruct
     public void init() {
-        // Cria alguns Avatares
         Avatar arthur = Avatar.builder()
                 .name("Arthur, o Bravo")
                 .role(RoleType.WARRIOR)
@@ -43,8 +42,7 @@ public class DataBaseSeeder {
                 .build();
 
         avatarRepository.saveAll(List.of(arthur, merlin, elena));
-
-        // Cria alguns Itens com dono
+        
         itemRepository.saveAll(List.of(
                 Item.builder()
                         .name("Espada Longa")

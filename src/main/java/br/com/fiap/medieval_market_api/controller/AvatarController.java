@@ -5,6 +5,8 @@ import br.com.fiap.medieval_market_api.model.RoleType;
 import br.com.fiap.medieval_market_api.repository.AvatarRepository;
 import br.com.fiap.medieval_market_api.specification.AvatarSpecification;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,6 +30,10 @@ public class AvatarController {
     private AvatarRepository repository;
 
     @GetMapping
+    @Operation(
+        summary = "Listar Avatares",
+        description = "Retorna todos os Avatares cadastrados"
+    )
     public List<Avatar> index() {
         return repository.findAll();
     }
@@ -43,6 +49,11 @@ public class AvatarController {
             Exemplo: `/avatars/search?name=ana&role=MAGE&page=0&size=10&sort=level,desc`
         """
     )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Busca realizada com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Parâmetros inválidos"),
+        @ApiResponse(responseCode = "500", description = "Erro interno no servidor")
+    })
     public Page<Avatar> search(
         @RequestParam(required = false) String name,
         @RequestParam(required = false) RoleType role,
@@ -51,21 +62,36 @@ public class AvatarController {
         return repository.findAll(AvatarSpecification.withFilters(name, role), pageable);
     }
 
-
     @PostMapping
+    @Operation(
+        summary = "Cadastrar um novo Avatar",
+        responses = @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    )
     @ResponseStatus(HttpStatus.CREATED)
     public Avatar create(@RequestBody @Valid Avatar avatar) {
         return repository.save(avatar);
     }
 
     @GetMapping("/{id}")
+    @Operation(
+        summary = "Buscar Avatar por ID",
+        description = "Retorna os dados de um Avatar",
+        responses = @ApiResponse(responseCode = "404", description = "Avatar não encontrado")
+    )
     public Avatar get(@PathVariable Long id) {
-        return repository.findById(id).orElseThrow(() ->
-            new ResponseStatusException(HttpStatus.NOT_FOUND, "Personagem não encontrado")
-        );
+        return repository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Avatar não encontrado"));
     }
 
     @PutMapping("/{id}")
+    @Operation(
+        summary = "Atualizar um Avatar existente",
+        description = "Atualiza os dados de um Avatar pelo ID"
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+        @ApiResponse(responseCode = "404", description = "Avatar não encontrado")
+    })
     public Avatar update(@PathVariable Long id, @RequestBody @Valid Avatar avatar) {
         get(id);
         avatar.setId(id);
@@ -73,6 +99,10 @@ public class AvatarController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+        summary = "Deletar um Avatar",
+        responses = @ApiResponse(responseCode = "404", description = "Avatar não encontrado")
+    )
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         Avatar avatar = get(id);
         repository.delete(avatar);
